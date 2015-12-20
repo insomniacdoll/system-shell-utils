@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # update system source index to latest
 sudo apt-get update
 sudo apt-get upgrade

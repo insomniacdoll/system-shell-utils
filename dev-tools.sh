@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # extract vim files to home folder
 # tar zxvf dotvim.tar.gz
 # mv .vim .vimrc ~/
