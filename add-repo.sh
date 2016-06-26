@@ -17,7 +17,7 @@ sudo add-apt-repository ppa:hzwhuang/ss-qt5
 sudo apt-get update
 
 # install nvidia drivers
-sudo apt-get install nvidia-355
+sudo apt-get install nvidia-352
 sudo nvidia-xconfig
 
 # install other apps
