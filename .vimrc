@@ -1,4 +1,6 @@
-" ################### Vundle Config START ########################
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -12,11 +14,18 @@ Plugin 'gmarik/Vundle.vim'
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 
+Plugin 'scrooloose/nerdtree'
+
 Plugin 'Valloric/YouCompleteMe'
 
 Plugin 'Chiel92/vim-autoformat'
 
-" Plugin 'tpope/vim-fugitive'
+Plugin 'vim-airline/vim-airline'
+
+Plugin 'tpope/vim-fugitive'
+
+Plugin 'keith/swift.vim'
+
 " plugin from http://vim-scripts.org/vim/scripts.html
 " Plugin 'L9'
 " Git plugin not hosted on GitHub
@@ -25,9 +34,9 @@ Plugin 'Chiel92/vim-autoformat'
 " Plugin 'file:///home/gmarik/path/to/plugin'
 " The sparkup vim script is in a subdirectory of this repo called vim.
 " Pass the path to set the runtimepath properly.
-" Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 " Avoid a name conflict with L9
-" Plugin 'user/L9', {'name': 'newL9'}
+Plugin 'user/L9', {'name': 'newL9'}
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -44,9 +53,7 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-" ################### Vundle Config END ########################
-
-" ################### Editor Config START ########################
+execute pathogen#infect()
 
 "history的存储长度
 set history=1000
@@ -72,6 +79,8 @@ set paste
 "显示行号
 set number
 set nowrap
+"为方便复制，用<F2>开启/关闭行号显示
+nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
 
 "括号配对情况
 set showmatch
@@ -97,28 +106,40 @@ set t_Co=256
 set fileencodings=ucs-bom,utf-8,gb18030,default
 set ffs=unix,dos,mac
 
-" ################### Editor Config END ########################
-
-" ################### Keymap and Plugin Config START ########################
-
-"为方便复制，用<F2>开启/关闭行号显示
-nnoremap <F2> :set nonumber!<CR>:set foldcolumn=0<CR>
-
 " Autoformat 配置
 noremap <F3> :Autoformat<CR><CR>
-
-" php_beautifier配置
-" map <C-b> :% ! php_beautifier --filters "Pear() NewLines(before=T_CLASS:function:T_COMMENT,after=T_COMMENT) EqualsAlign() ArrayNested()"<CR>
 
 " taglist配置
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'
 let Tlist_Show_One_File=1
 let Tlist_Exit_OnlyWindow=1
 let Tlist_Use_Right_Window = 1
-let Tlist_Auto_Open=1
+let Tlist_Auto_Open=0
 let Tlist_Process_File_Always=1
 let Tlist_File_Fold_Auto_Close=1
+
+" taglist开启快捷键
+map <F4> :TlistToggle<CR><CR>
+" ctags生成快捷键
 map <C-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR>
+
+" winmanager配置
+let g:winManagerWindowLayout='NERDTree|TagList'  
+let g:winManagerWidth = 30  
+let g:AutoOpenWinManager = 1
+let g:winManagerOnRightSide = 1
+nmap <silent> <F8> :WMToggle<cr>  
+
+"NERDTree 配置  
+let g:NERDTree_title="[NERDTree]"  
+
+function! NERDTree_Start()  
+    exec 'NERDTree'  
+endfunction  
+
+function! NERDTree_IsValid()  
+    return 1  
+endfunction 
 
 " YouCompleteMe 功能
 " 补全功能在注释中同样有效
@@ -143,5 +164,3 @@ let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_key_invoke_completion = '<M-;>'
 " 设置转到定义处的快捷键为ALT + G，这个功能非常赞
 nmap <M-g> :YcmCompleter GoToDefinitionElseDeclaration <C-R>=expand("<cword>")<CR><CR>
-
-" ################### Keymap and Plugin Config END ########################
