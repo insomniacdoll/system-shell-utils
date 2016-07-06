@@ -83,6 +83,10 @@ set ffs=unix,dos,mac
 " Autoformat 配置
 noremap <F3> :Autoformat<CR><CR>
 
+" Vim-Template 配置
+let g:username = 'hiyoru'
+let g:email = 'insomniacdoll@gmail.com'
+
 " taglist配置
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'
 let Tlist_Show_One_File=1
