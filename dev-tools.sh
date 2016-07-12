@@ -8,7 +8,7 @@
 # add dependencies of vim plugins
 echo "[DEBUG] INSTALLING BUILD TOOLS"
 sudo apt-get install vim vim-nox zsh
-sudo apt-get install build-essential cmake automake ctags cscope llvm llvm-dev clang
+sudo apt-get install build-essential cmake automake autoconf ctags cscope llvm llvm-dev clang
 sudo apt-get install python-dev python-pip ruby ruby-dev gems nodejs npm libxml2 libxml2-dev libxslt1.1 libxslt-dev lib32z1-dev
 sudo apt-get install astyle tidy
 sudo ln -s /usr/bin/nodejs /usr/bin/node
