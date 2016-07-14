@@ -1743,9 +1743,19 @@ function! s:Tlist_Window_Init()
                 \ call s:Tlist_Window_Open_File_Fold(expand('<abuf>'))
         endif
         " Exit Vim itself if only the taglist window is present (optional)
+        let s:NERDTreeBufName = 'NERD_tree_'
         if g:Tlist_Exit_OnlyWindow
-	    autocmd BufEnter __Tag_List__ nested
-			\ call s:Tlist_Window_Exit_Only_Window()
+	         augroup Exit_onlywindow
+            "当进入Nerd_Tree的buffer时也检测是否需要退出
+            exec "autocmd BufEnter ". s:NERDTreeBufName .
+                \"* call s:Tlist_Window_Exit_Only_Window()"
+            autocmd BufEnter __Tag_List__ nested
+                \ call s:Tlist_Window_Exit_Only_Window()
+            augroup end
+        " ======== origin code below =============
+        " autocmd BufEnter __Tag_List__ nested
+		" 	\ call s:Tlist_Window_Exit_Only_Window()
+        " ======== origin code above =============
         endif
         if s:tlist_app_name != "winmanager" &&
                     \ !g:Tlist_Process_File_Always &&

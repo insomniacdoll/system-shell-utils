@@ -13,6 +13,12 @@
 " See ":help winmanager" for additional details.
 " ============================================================================
 
+"set auto open Winmanager 
+if g:AutoOpenWinManager 
+"    autocmd VimEnter * nested call s:StartWindowsManager()|1wincmd w  
+    autocmd VimEnter * nested call s:StartWindowsManager()|1wincmd w|q
+endif
+
 " quit if the user doesnt want us or if we are already loaded.
 if exists("loaded_winmanager")
 	finish
