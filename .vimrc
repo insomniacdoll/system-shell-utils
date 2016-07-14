@@ -16,6 +16,8 @@ Plugin 'Chiel92/vim-autoformat'
 Plugin 'aperezdc/vim-template'
 Plugin 'vim-airline/vim-airline'
 Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-commentary'
+Plugin 'tpope/vim-markdown'
 Plugin 'keith/swift.vim'
 Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 " Avoid a name conflict with L9
