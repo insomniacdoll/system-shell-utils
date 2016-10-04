@@ -19,4 +19,5 @@ sudo pip install autopep8 Django flask twisted tornado scrapy PyYAML poster nump
 sudo apt-get install chromium-browser firefox browser-plugin-freshplayer-pepperflash pepperflashplugin-nonfree
 sudo apt-get install terminator
 sudo apt-get install git subversion
+sudo apt-get install tsocks cifs-utils
 echo "[DEBUG] INSTALL BUILD TOOLS FINISHED"

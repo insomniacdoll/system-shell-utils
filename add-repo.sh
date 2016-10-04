@@ -10,6 +10,7 @@ sudo add-apt-repository ppa:graphics-drivers/ppa
 sudo add-apt-repository ppa:rvm/smplayer
 sudo add-apt-repository ppa:numix/ppa
 sudo add-apt-repository ppa:moka/stable
+sudo add-apt-repository ppa:noobslab/themes
 # sudo add-apt-repository ppa:tualatrix/ppa
 sudo add-apt-repository ppa:hzwhuang/ss-qt5
 
@@ -26,5 +27,6 @@ sudo apt-get install smplayer
 sudo apt-get install numix-gtk-theme numix-icon-theme-circle 
 sudo apt-get install numix-wallpaper-notd
 sudo apt-get install moka-icon-theme
+sudo apt-get install zukitwo-dark-cinnamon zukitwo-dark-shell zukitwo zukiwi
 # sudo apt-get install ubuntu-tweak
 sudo apt-get install shadowsocks-qt5
