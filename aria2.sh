@@ -9,7 +9,7 @@
 function start_aria()
 {
     nohup aria2c --conf-path=/opt/webui-aria2/conf/aria2.conf &
-    chromium-browser /opt/webui-aria2/index.html
+    chrome /opt/webui-aria2/index.html
     return 0
 }
 

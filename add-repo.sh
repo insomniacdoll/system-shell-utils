@@ -13,6 +13,7 @@ sudo add-apt-repository ppa:moka/stable
 sudo add-apt-repository ppa:noobslab/themes
 # sudo add-apt-repository ppa:tualatrix/ppa
 sudo add-apt-repository ppa:hzwhuang/ss-qt5
+sudo add-apt-repository ppa:ondrej/php
 
 # update source index
 sudo apt-get update
@@ -30,3 +31,5 @@ sudo apt-get install moka-icon-theme
 sudo apt-get install zukitwo-dark-cinnamon zukitwo-dark-shell zukitwo zukiwi
 # sudo apt-get install ubuntu-tweak
 sudo apt-get install shadowsocks-qt5
+sudo apt-get install php5.6 php5.6-dev php5.6-mbstring php5.6-mcrypt php5.6-mysql php5.6-xml
+sudo apt-get install apache2 mysql-client mysql-server libmysqld-dev
