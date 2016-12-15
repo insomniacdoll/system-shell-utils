@@ -13,9 +13,12 @@ sudo apt-get install python-dev python-pip ruby ruby-dev gems nodejs npm libxml2
 sudo apt-get install astyle tidy
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 sudo npm install -g js-beautify typescript-formatter
-gem sources --add https://ruby.taobao.org/ --remove https://rubygems.org/
+gem sources --add https://mirrors.tuna.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/
 sudo gem install sass rails sciruby
-sudo pip install autopep8 Django flask twisted tornado scrapy PyYAML poster numpy scipy scikit-learn
+mkdir -p ~/.pip
+rm -rf ~/.pip/pip.conf
+cp pip.conf ~/.pip 
+sudo pip install autopep8 django flask flask-restful uwsgi gunicorn twisted tornado scrapy PyYAML poster numpy scipy scikit-learn statsmodels pyodps
 sudo apt-get install chromium-browser firefox browser-plugin-freshplayer-pepperflash pepperflashplugin-nonfree
 sudo apt-get install terminator
 sudo apt-get install git subversion
