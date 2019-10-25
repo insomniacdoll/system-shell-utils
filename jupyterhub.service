@@ -1,0 +1,14 @@
+[Unit]
+Description=Daemon to start jupyter notebook
+Wants=network-online.target
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/jupyterhub.pid
+StandardOutput=file:/var/log/jupyterhub.log
+StandardError=file:/var/log/jupyterhub.log
+ExecStart=/usr/local/bin/jupyterhub --config=/etc/jupyterhub/jupyterhub_config.py --no-ssl
+
+[Install]
+WantedBy=multi-user.target
