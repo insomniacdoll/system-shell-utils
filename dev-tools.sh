@@ -19,8 +19,10 @@ mkdir -p ~/.pip
 rm -rf ~/.pip/pip.conf
 cp pip.conf ~/.pip 
 sudo pip install autopep8 django flask flask-restful uwsgi gunicorn twisted tornado scrapy PyYAML poster numpy scipy scikit-learn statsmodels pyodps
-sudo apt-get install chromium-browser firefox browser-plugin-freshplayer-pepperflash pepperflashplugin-nonfree
-sudo apt-get install terminator
+# sudo apt-get install chromium-browser firefox browser-plugin-freshplayer-pepperflash pepperflashplugin-nonfree
+# sudo apt-get install terminator
 sudo apt-get install git subversion
 sudo apt-get install tsocks cifs-utils
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
 echo "[DEBUG] INSTALL BUILD TOOLS FINISHED"
