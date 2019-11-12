@@ -1,0 +1,17 @@
+[Unit]
+Description=Daemon to start Codeserver
+Wants=network-online.target
+After=network.target
+
+[Service]
+Type=simple
+User=hiyoru
+Group=hiyoru
+WorkingDirectory=/home/hiyoru/workspaces
+PIDFile=/home/hiyoru/run/codeserver.pid
+StandardOutput=file:/var/log/codeserver.log
+StandardError=file:/var/codeserver.log
+ExecStart=/opt/code-server/code-server --port 28080 --base-path /cdr --allow-http --no-auth
+
+[Install]
+WantedBy=multi-user.target
