@@ -1,3 +1,3 @@
 # system-shell-utils   
 
-some utils
+some utils and configs
