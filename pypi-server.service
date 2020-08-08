@@ -1,0 +1,19 @@
+[Unit]
+Description=PyPI server
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/pypi-server.pid
+User=www-data
+Group=www-data
+ExecStart=/opt/virtualenv/pypi/bin/pypi-server -p 48080 -v --log-file /var/log/pypi-server.log -P /opt/virtualenv/pypi/passwd/.pypipasswd /opt/virtualenv/pypi/packages
+ExecStop=/bin/kill -TERM $MAINPID
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+WorkingDirectory=/opt/virtualenv/pypi/
+TimeoutStartSec=3
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
