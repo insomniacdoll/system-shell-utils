@@ -6,7 +6,7 @@ export ZSH=$HOME/.oh-my-zsh
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 #ZSH_THEME="robbyrussell"
-ZSH_THEME="candy"
+ZSH_THEME="ys"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -95,15 +95,15 @@ export SCRIPT_HOME=$HOME/scripts
 # =========build tools envs settings start=============
 
 ## for build tools
-export ANT_HOME=$ENV_HOME/apache-ant-1.9.6
-export IVY_HOME=$ENV_HOME/apache-ivy-2.4.0
+export ANT_HOME=$ENV_HOME/apache-ant
+export IVY_HOME=$ENV_HOME/apache-ivy
 
 ## for ant and ivy
 export PATH=$ANT_HOME/bin:$IVY_HOME:$PATH
 export CLASSPATH=$IVY_HOME:$IVY_HOME/lib:$CLASSPATH
 
 ## for maven 
-export M2_HOME=$ENV_HOME/apache-maven-3.3.9
+export M2_HOME=$ENV_HOME/apache-maven
 export PATH=$M2_HOME/bin:$PATH
 
 ## for custom git
@@ -121,16 +121,16 @@ export PATH=$LAMPP_HOME/bin:$PATH
 
 ## for java 
 # export JAVA_HOME=$ENV_HOME/jdk1.7.0_80
-export JAVA_HOME=$ENV_HOME/jdk1.8.0_92
+export JAVA_HOME=$ENV_HOME/jdk1.8.0
 export JRE_HOME=$JAVA_HOME/jre
 export PATH=$JAVA_HOME/bin:$JRE_HOME/bin:$PATH
 
 ## for custom groovy
-export GROOVY_HOME=$ENV_HOME/groovy-2.4.6
+export GROOVY_HOME=$ENV_HOME/groovy
 export PATH=$GROOVY_HOME/bin:$PATH
 
 ## for custom scala
-export SCALA_HOME=$ENV_HOME/scala-2.11.8
+export SCALA_HOME=$ENV_HOME/scala
 export PATH=$SCALA_HOME/bin:$PATH
 
 ## for custom jython
