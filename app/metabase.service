@@ -1,0 +1,16 @@
+[Unit]
+Description=Metabase Analysis Platform
+Wants=network-online.target
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/metabase/
+EnvironmentFile=/opt/metabase/env_config
+PIDFile=/var/run/metabase.pid
+StandardOutput=file:/var/log/metabase.log
+StandardError=file:/var/log/metabase.log
+ExecStart=/opt/jdk1.8.0_241/bin/java -jar /opt/metabase/metabase.jar
+
+[Install]
+WantedBy=sockets.target
