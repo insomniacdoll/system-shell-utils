@@ -6,25 +6,27 @@
 # Distributed under terms of the MIT license.
 #
 
-
 dry_run_mode=false
+verbose_mode=false
 directory_A=""
 old_dir_name=""
 new_dir_name=""
 
 # 参数处理（支持选项）
-while getopts ":f:o:n:d:h" opt; do
+while getopts ":f:o:n:dvh" opt; do
     case ${opt} in
         f ) directory_A="$OPTARG" ;;
         o ) old_dir_name="$OPTARG" ;;
         n ) new_dir_name="$OPTARG" ;;
         d ) dry_run_mode=true ;;
+        v ) verbose_mode=true ;;
         h ) echo "用法: $0 [选项]
 选项:
   -f 目录路径       指定要扫描的根目录（必填）
   -o 旧目录名       指定要查找的旧目录名称（如C1）（必填）
   -n 新目录名       指定要重命名的目标目录名称（如C2）（必填）
   -d                dry-run模式，仅显示操作不执行
+  -v                显示详细信息（包括 rsync 进度）
   -h                显示帮助信息" && exit 0 ;;
         \? ) echo "无效选项: -$OPTARG" >&2 && exit 1 ;;
     esac
@@ -77,7 +79,11 @@ process_subdir() {
                     echo "[DRY-RUN] 删除源目录: rm -rf '$old_path'"
                 else
                     echo "正在合并..."
-                    if rsync -a --remove-source-files "$old_path/" "$new_path/"; then
+                    rsync_options="-a --remove-source-files"
+                    if $verbose_mode; then
+                        rsync_options="$rsync_options -v --progress"
+                    fi
+                    if rsync $rsync_options "$old_path/" "$new_path/"; then
                         rm -rf "$old_path"
                         echo "合并完成"
                     else
