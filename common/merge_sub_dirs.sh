@@ -8,34 +8,41 @@
 
 
 dry_run_mode=false
+directory_A=""
+old_dir_name=""
+new_dir_name=""
 
 # 参数处理（支持选项）
-while getopts ":n" opt; do
+while getopts ":f:o:n:d:h" opt; do
     case ${opt} in
-        n ) dry_run_mode=true ;;
-        \? ) echo "无效选项: -$OPTARG" >&2; exit 1 ;;
+        f ) directory_A="$OPTARG" ;;
+        o ) old_dir_name="$OPTARG" ;;
+        n ) new_dir_name="$OPTARG" ;;
+        d ) dry_run_mode=true ;;
+        h ) echo "用法: $0 [选项]
+选项:
+  -f 目录路径       指定要扫描的根目录（必填）
+  -o 旧目录名       指定要查找的旧目录名称（如C1）（必填）
+  -n 新目录名       指定要重命名的目标目录名称（如C2）（必填）
+  -d                dry-run模式，仅显示操作不执行
+  -h                显示帮助信息" && exit 0 ;;
+        \? ) echo "无效选项: -$OPTARG" >&2 && exit 1 ;;
     esac
 done
-shift $((OPTIND -1))
 
 # 参数检查
-if [ "$#" -ne 3 ]; then
-    echo "用法: $0 [-n] <目录A> <旧目录名> <新目录名>"
-    echo "  -n: dry-run模式，仅显示操作不执行"
+if [ -z "$directory_A" ] || [ -z "$old_dir_name" ] || [ -z "$new_dir_name" ]; then
+    echo "错误: 必须指定 -f、-o、-n 参数"
     exit 1
 fi
-
-A="$1"
-old_dir="$2"
-new_dir="$3"
 
 # 基础检查
-if [ ! -d "$A" ]; then
-    echo "错误: 目录 $A 不存在"
+if [ ! -d "$directory_A" ]; then
+    echo "错误: 目录 $directory_A 不存在"
     exit 1
 fi
 
-if [ "$old_dir" = "$new_dir" ]; then
+if [ "$old_dir_name" = "$new_dir_name" ]; then
     echo "错误: 旧目录名和新目录名不能相同"
     exit 1
 fi
@@ -54,8 +61,8 @@ confirm_operation() {
 # 处理子目录的函数
 process_subdir() {
     local subdir="$1"
-    local old_path="$subdir/$old_dir"
-    local new_path="$subdir/$new_dir"
+    local old_path="$subdir/$old_dir_name"
+    local new_path="$subdir/$new_dir_name"
 
     # 检查旧目录是否存在
     if [ -d "$old_path" ]; then
@@ -99,7 +106,7 @@ process_subdir() {
 }
 
 # 遍历目录A下的所有直接子目录
-for subdir in "$A"/*; do
+for subdir in "$directory_A"/*; do
     if [ -d "$subdir" ]; then
         # echo "处理目录: $subdir"
         process_subdir "$subdir"
