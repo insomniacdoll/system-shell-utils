@@ -12,6 +12,12 @@ directory_A=""
 old_dir_name=""
 new_dir_name=""
 
+# 新增的依赖检查部分
+if ! command -v advcp &> /dev/null; then
+    echo "错误: 未找到 advcp 命令，请先安装 advcp 后重试。"
+    exit 1
+fi
+
 # 参数处理（支持选项）
 while getopts ":f:o:n:dvh" opt; do
     case ${opt} in
@@ -26,7 +32,7 @@ while getopts ":f:o:n:dvh" opt; do
   -o 旧目录名       指定要查找的旧目录名称（如C1）（必填）
   -n 新目录名       指定要重命名的目标目录名称（如C2）（必填）
   -d                dry-run模式，仅显示操作不执行
-  -v                显示详细信息（包括 rsync 进度）
+  -v                显示详细信息（包括合并进度）
   -h                显示帮助信息" && exit 0 ;;
         \? ) echo "无效选项: -$OPTARG" >&2 && exit 1 ;;
     esac
@@ -75,15 +81,15 @@ process_subdir() {
             # 合并操作
             if confirm_operation "merge" "是否将 $old_path 合并到 $new_path"; then
                 if $dry_run_mode; then
-                    echo "[DRY-RUN] 合并操作: rsync -a --remove-source-files '$old_path/' '$new_path/'"
+                    echo "[DRY-RUN] 合并操作: advcp -rl '$old_path/'* '$new_path/'"
                     echo "[DRY-RUN] 删除源目录: rm -rf '$old_path'"
                 else
                     echo "正在合并..."
-                    rsync_options="-a --remove-source-files"
+                    advcp_options="-rl"
                     if $verbose_mode; then
-                        rsync_options="$rsync_options -v --progress"
+                        advcp_options="$advcp_options -g"
                     fi
-                    if rsync $rsync_options "$old_path/" "$new_path/"; then
+                    if advcp $advcp_options "$old_path/"* "$new_path/"; then
                         rm -rf "$old_path"
                         echo "合并完成"
                     else
