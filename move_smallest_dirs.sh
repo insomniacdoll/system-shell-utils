@@ -6,40 +6,43 @@
 # Distributed under terms of the MIT license.
 #
 
-# 默认值
+# 默认参数
 SOURCE_DIR="/srv/dev-disk-by-label-sharedcenter/Video/Adult/"
 TARGET_DIR="/mnt/WAREHOUSE-WD-001/"
 MOVE_COUNT=5
 DRY_RUN=false
 COPY_MODE=false
+VERBOSE=false
 LOG_FILE="move_dirs.log"
 
-# 使用帮助
+# 帮助信息
 usage() {
-  echo "用法: $0 [-s 源目录] [-t 目标目录] [-n 数量] [-d] [-c]"
+  echo "用法: $0 [-s 源目录] [-t 目标目录] [-n 数量] [-d] [-c] [-v] [-h]"
   echo "  -s 源目录（默认当前目录）"
   echo "  -t 目标目录（默认 /opt）"
-  echo "  -n 移动或复制的目录数量（默认 5）"
-  echo "  -d dry-run 模式（仅预览）"
-  echo "  -c copy 模式（复制目录而不是移动）"
-  echo "  -h 显示帮助"
+  echo "  -n 要移动/复制的子目录数量（默认 5）"
+  echo "  -c 复制模式（默认是移动）"
+  echo "  -d dry-run 模式（仅预览操作）"
+  echo "  -v verbose 模式，显示复制/合并进度"
+  echo "  -h 显示帮助信息"
   exit 1
 }
 
-# 参数解析
-while getopts "s:t:n:dch" opt; do
+# 解析参数
+while getopts "s:t:n:dcvh" opt; do
   case $opt in
     s) SOURCE_DIR="$OPTARG" ;;
     t) TARGET_DIR="$OPTARG" ;;
     n) MOVE_COUNT="$OPTARG" ;;
     d) DRY_RUN=true ;;
     c) COPY_MODE=true ;;
+    v) VERBOSE=true ;;
     h) usage ;;
     *) usage ;;
   esac
 done
 
-# 检查目录
+# 检查目录是否存在
 if [ ! -d "$SOURCE_DIR" ]; then
   echo "❌ 源目录 $SOURCE_DIR 不存在。" | tee -a "$LOG_FILE"
   exit 1
@@ -57,59 +60,65 @@ fi
 
 cd "$SOURCE_DIR" || exit 1
 
-# 获取排序后的目录列表
+# 获取子目录并排序
 dirs=$(du -sb -- */ 2>/dev/null | sort -nr | tail -n "$MOVE_COUNT")
 
 dir_count=$(echo "$dirs" | wc -l)
 if [ "$dir_count" -lt 1 ]; then
-  echo "⚠️ 没有足够的子目录。" | tee -a "$LOG_FILE"
+  echo "⚠️ 没有足够的子目录进行处理。" | tee -a "$LOG_FILE"
   exit 1
 fi
 
-# 总大小
+# 计算总大小
 total_size_bytes=$(echo "$dirs" | awk '{sum += $1} END {print sum}')
-total_size_human=$(numfmt --to=iec-i --suffix=B $total_size_bytes)
+total_size_human=$(numfmt --to=iec-i --suffix=B "$total_size_bytes")
 
-# 预览
-echo "🔍 将从 [$SOURCE_DIR] ${COPY_MODE:+复制}${!COPY_MODE:+移动}以下 $MOVE_COUNT 个目录到 [$TARGET_DIR]："
-echo "$dirs" | awk '{print $2}'
-echo "📦 总大小为：$total_size_human"
+# 操作预览
+echo "🔍 操作预览："
+echo "  源目录: $SOURCE_DIR"
+echo "  目标目录: $TARGET_DIR"
+echo "  目录数量: $MOVE_COUNT"
+echo "  模式: $([ "$COPY_MODE" = true ] && echo "复制" || echo "移动")"
+echo "  Dry-run: $DRY_RUN"
+echo "  Verbose: $VERBOSE"
+echo "📦 总大小：$total_size_human"
+echo "📂 将处理以下目录："
+echo "$dirs" | awk '{print "  - " $2}'
 
-# 用户确认
-read -p "是否继续？[y/N] " confirm
+read -p "确认执行以上操作？[y/N] " confirm
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-  echo "操作已取消。" | tee -a "$LOG_FILE"
+  echo "🚫 用户取消操作。" | tee -a "$LOG_FILE"
   exit 0
 fi
 
-# 执行操作
+# 日志记录开始
 timestamp=$(date "+%Y-%m-%d %H:%M:%S")
 echo "===== [$timestamp] 开始操作 =====" >> "$LOG_FILE"
 
+# 设置 rsync 参数
+rsync_opts="-a"
+[ "$VERBOSE" = true ] && rsync_opts="$rsync_opts --info=progress2 --stats"
+
+# 开始处理目录
 echo "$dirs" | awk '{print $2}' | while read dir; do
-  action_label="[dry-run] "
-  action_type="MOVE"
-  if [ "$COPY_MODE" = true ]; then
-    action_type="COPY"
-  fi
+  src_path="$SOURCE_DIR/$dir"
+  tgt_path="$TARGET_DIR/$dir"
+  action_type=$([ "$COPY_MODE" = true ] && echo "COPY" || echo "MOVE")
 
   if [ "$DRY_RUN" = true ]; then
-    echo "$action_label$action_type：$SOURCE_DIR/$dir -> $TARGET_DIR/"
-    echo "$action_label$action_type：$SOURCE_DIR/$dir -> $TARGET_DIR/" >> "$LOG_FILE"
-  else
-    if [ "$COPY_MODE" = true ]; then
-      echo "📂 正在复制：$SOURCE_DIR/$dir -> $TARGET_DIR/"
-      advcp -r -g "$dir" "$TARGET_DIR/"
-    else
-      echo "🚚 正在移动：$SOURCE_DIR/$dir -> $TARGET_DIR/"
-      advmv -g "$dir" "$TARGET_DIR/"
-    fi
+    echo "[dry-run] $action_type: $src_path -> $tgt_path"
+    echo "[dry-run] $action_type: $src_path -> $tgt_path" >> "$LOG_FILE"
+    continue
+  fi
 
-    if [ $? -eq 0 ]; then
-      echo "✅ $action_type 成功：$dir -> $TARGET_DIR/" >> "$LOG_FILE"
-    else
-      echo "❌ $action_type 失败：$dir" >> "$LOG_FILE"
-    fi
+  echo "🔄 $action_type 合并目录：$src_path -> $tgt_path"
+  rsync $rsync_opts "$src_path/" "$tgt_path/"
+
+  if [ $? -eq 0 ]; then
+    echo "✅ 合并成功：$dir" >> "$LOG_FILE"
+    [ "$COPY_MODE" = false ] && rm -rf "$src_path" && echo "🗑️ 已删除原目录：$src_path" >> "$LOG_FILE"
+  else
+    echo "❌ $action_type 失败：$dir" | tee -a "$LOG_FILE"
   fi
 done
 
@@ -117,7 +126,7 @@ echo "===== [$timestamp] 操作完成 =====" >> "$LOG_FILE"
 
 # 总结
 if [ "$DRY_RUN" = true ]; then
-  echo "✅ Dry-run 模式完成，未进行实际更改。"
+  echo "✅ dry-run 模式完成，未进行实际更改。"
 else
-  echo "✅ 操作完成，日志写入 $LOG_FILE"
+  echo "✅ 操作完成，详情请查看日志：$LOG_FILE"
 fi
