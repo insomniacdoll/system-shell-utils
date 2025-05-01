@@ -6,7 +6,6 @@
 # Distributed under terms of the MIT license.
 #
 
-
 set -e
 
 # 参数解析
@@ -94,68 +93,94 @@ else
     echo "以下目录将被移动："
     for action in "${MOVE_ACTIONS[@]}"; do
         IFS="|" read -r src dst <<< "$action"
-        echo "$src -> $dst"
+        echo "  $src -> $dst"
     done
 
     if [[ "$DRY_RUN" -eq 1 ]]; then
         echo "[dry-run] 未执行任何实际移动操作。"
     else
-        echo -n "是否继续执行这些移动操作？[y/N]: "
-        read -r confirm
-        if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-            echo "已取消移动操作。"
-        else
+        read -rp "是否继续执行这些移动操作？[y/N]: " confirm_move
+        if [[ "$confirm_move" =~ ^[Yy]$ ]]; then
             for action in "${MOVE_ACTIONS[@]}"; do
                 IFS="|" read -r src dst <<< "$action"
                 mkdir -p "$(dirname "$dst")"
                 mv "$src" "$dst"
                 echo "已移动: $src -> $dst"
             done
+        else
+            echo "已取消移动操作。"
         fi
     fi
 fi
 
-# 查找空目录（不包括根）
+# 查找并删除空目录（带确认和大小显示）
 echo
-echo "正在检查空目录..."
+echo "正在检查并删除空目录..."
 
-EMPTY_DIRS=()
+# 第一轮：扫描二级目录（depth=2）
+declare -a EMPTY_SECOND_LEVEL=()
 while IFS= read -r dir; do
-    # 忽略根目录本身
-    [[ "$dir" == "$ROOT_DIR" ]] && continue
-    # 判断是否为空目录
     if [ -z "$(ls -A "$dir")" ]; then
-        EMPTY_DIRS+=("$dir")
+        EMPTY_SECOND_LEVEL+=("$dir")
     fi
-done < <(find "$ROOT_DIR" -type d | sort -r)  # reverse 先删深层空目录
+done < <(find "$ROOT_DIR" -mindepth 2 -maxdepth 2 -type d)
 
-# 无空目录
-if [ ${#EMPTY_DIRS[@]} -eq 0 ]; then
-    echo "没有空目录。"
-    exit 0
+if [ ${#EMPTY_SECOND_LEVEL[@]} -eq 0 ]; then
+    echo "没有空的二级目录。"
+else
+    echo "以下二级目录为空："
+    for dir in "${EMPTY_SECOND_LEVEL[@]}"; do
+        size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
+        echo "  $dir (大小: $size)"
+    done
+
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+        echo "[dry-run] 未删除任何二级目录。"
+    else
+        read -rp "是否删除以上二级目录？[y/N]: " confirm_sec
+        if [[ "$confirm_sec" =~ ^[Yy]$ ]]; then
+            for dir in "${EMPTY_SECOND_LEVEL[@]}"; do
+                size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
+                echo "删除: $dir (大小: $size)"
+                rmdir "$dir" && echo "已删除二级目录: $dir"
+            done
+        else
+            echo "已跳过二级目录删除。"
+        fi
+    fi
 fi
 
-# 打印空目录及其大小
-echo "以下空目录可被删除："
-for dir in "${EMPTY_DIRS[@]}"; do
-    size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
-    echo "$dir (大小：$size)"
-done
+# 第二轮：扫描一级目录（depth=1）
+declare -a EMPTY_FIRST_LEVEL=()
+while IFS= read -r dir; do
+    if [ "$(find "$dir" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 0 ]; then
+        EMPTY_FIRST_LEVEL+=("$dir")
+    fi
+done < <(find "$ROOT_DIR" -mindepth 1 -maxdepth 1 -type d)
 
-if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[dry-run] 未删除任何空目录。"
-    exit 0
+if [ ${#EMPTY_FIRST_LEVEL[@]} -eq 0 ]; then
+    echo "没有空的一级目录需要删除。"
+else
+    echo "以下一级目录已无子目录："
+    for dir in "${EMPTY_FIRST_LEVEL[@]}"; do
+        size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
+        echo "  $dir (大小: $size)"
+    done
+
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+        echo "[dry-run] 未删除任何一级目录。"
+    else
+        read -rp "是否删除以上一级目录？[y/N]: " confirm_first
+        if [[ "$confirm_first" =~ ^[Yy]$ ]]; then
+            for dir in "${EMPTY_FIRST_LEVEL[@]}"; do
+                size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
+                echo "删除: $dir (大小: $size)"
+                rmdir "$dir" && echo "已删除一级目录: $dir"
+            done
+        else
+            echo "已跳过一级目录删除。"
+        fi
+    fi
 fi
 
-echo -n "是否删除这些空目录？[y/N]: "
-read -r confirm_empty
-if [[ "$confirm_empty" != "y" && "$confirm_empty" != "Y" ]]; then
-    echo "已跳过空目录删除。"
-    exit 0
-fi
-
-# 删除空目录
-for dir in "${EMPTY_DIRS[@]}"; do
-    rmdir "$dir" && echo "已删除空目录: $dir"
-done
-
+exit 0
